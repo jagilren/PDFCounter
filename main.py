@@ -8,6 +8,23 @@ from datetime import datetime, time, timedelta
 import logging
 import counterPages
 
+
+class CountPDFThread(QThread):
+    finished = pyqtSignal()
+    disable_button = pyqtSignal()
+    enable_button =  pyqtSignal()
+    def run(self):
+            # Disable the button in the main thread
+            self.disable_button.emit()
+            # Your code for the countPDF method goes here
+            print("Running countPDF method...")
+            import time
+            time.sleep(5)  # Simulate some work (remove this in your actual code)
+
+            # Enable the button in the main thread
+            self.enable_button.emit()
+            self.finished.emit()
+
 class CalendarApp(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -20,6 +37,19 @@ class CalendarApp(QMainWindow):
         custom_button.setStyleSheet("background-color: #3498db; color: white;")
         self.msg_box.addButton(custom_button, QMessageBox.AcceptRole)
 
+    def startCountPDFThread(self):
+        # Create an instance of the CountPDFThread and start it
+        self.countPDF_thread = CountPDFThread()
+        self.countPDF_thread.finished.connect(self.onCountPDFFinished)
+
+        # Connect signals to enable/disable the button
+        self.countPDF_thread.disable_button.connect(lambda: self.generateCsv_button.setDisabled(True))
+        self.countPDF_thread.enable_button.connect(lambda: self.generateCsv_button.setEnabled(True))
+
+        self.countPDF_thread.start()
+
+    def onCountPDFFinished(self):
+        print("countPDF method is complete.")
 
     def initUI(self):
         self.setWindowTitle("Indicador de Rendimiento CAD")
@@ -83,7 +113,8 @@ class CalendarApp(QMainWindow):
         folder_button.clicked.connect(self.select_folder)
         # Create a push button to Generate Report
         self.generateCsv_button = QPushButton("Generar Reporte")
-        self.generateCsv_button.clicked.connect(lambda:self.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label))
+        #self.generateCsv_button.clicked.connect(lambda:self.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label))
+        self.generateCsv_button.clicked.connect(self.startCountPDFThread)
 
 
         # Add a QLabel to display the selected folder path
@@ -162,6 +193,7 @@ class CalendarApp(QMainWindow):
         if consistenciaFechas and distanciaEntreFechas:
             try:
                 if rutaRaiz.text().split("Path: ")[1][0].upper():
+                    self.generateCsv_button.setEnabled(False)
                     counterPages.search_files_in_directory(rutaRaiz.text().split("Path: ")[1],'PDF',datetime1.text(),datetime2.text())
             except Exception as error:
                 error_description = str(error)

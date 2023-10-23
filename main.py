@@ -1,11 +1,12 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QCalendarWidget, QPushButton, QVBoxLayout, QWidget, QFrame, QFileDialog, QLabel, QHBoxLayout,QMessageBox
 from PyQt5.QtCore import QDate
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QThread,  pyqtSignal
 from PyQt5.QtGui import QFont, QColor
 from datetime import datetime, time, timedelta
 import logging
 import counterPages
+import classWorker
 class CalendarApp(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -80,8 +81,8 @@ class CalendarApp(QMainWindow):
         folder_button = QPushButton("Select Folder")
         folder_button.clicked.connect(self.select_folder)
         # Create a push button to Generate Report
-        generateCsv_button = QPushButton("Generar Reporte")
-        generateCsv_button.clicked.connect(lambda:self.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label))
+        self.generateCsv_button = QPushButton("Generar Reporte")
+        self.generateCsv_button.clicked.connect(lambda:self.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label))
 
 
         # Add a QLabel to display the selected folder path
@@ -125,7 +126,7 @@ class CalendarApp(QMainWindow):
 
         frame_csv_layout = QVBoxLayout()
         frame_csv_layout.addWidget(self.generateCsv_label)
-        frame_csv_layout.addWidget(generateCsv_button)
+        frame_csv_layout.addWidget(self.generateCsv_button)
         frame_csv_layout.setAlignment(Qt.AlignLeft | Qt.AlignTop | Qt.AlignVCenter) #Align of Widget inside Frame
         frame_csv.setLayout(frame_csv_layout)
 
@@ -145,10 +146,6 @@ class CalendarApp(QMainWindow):
         frame_root.addWidget(frame_operations)
         frame_root.setAlignment(Qt.AlignHCenter | Qt.AlignTop | Qt.AlignVCenter)
         central_widget.setLayout(frame_root)
-
-
-
-
 
 
     def select_folder(self):
@@ -184,6 +181,7 @@ class CalendarApp(QMainWindow):
                 self.msg_box.setText("Error no determinado.  Comuníque al administrador del sistema")
                 showDialog = self.msg_box.exec_()
                 return None
+
     def deltaBetweenDateTimes(self,date_string1,date_string2):
         # Convert the datetime strings to datetime objects
         date_time1 = datetime.strptime(date_string1, "%Y-%m-%d %H:%M:%S")

@@ -1,3 +1,4 @@
+#Vuelvo a empezar sin Workers
 import time
 from os import path
 import datetime

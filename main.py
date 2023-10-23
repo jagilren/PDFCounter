@@ -7,7 +7,7 @@ from PyQt5.QtGui import QFont, QColor
 from datetime import datetime, time, timedelta
 import logging
 import counterPages
-import classWorker
+
 class CalendarApp(QMainWindow):
     def __init__(self):
         super().__init__()

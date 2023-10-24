@@ -51,11 +51,11 @@ def search_files_in_directory(root_path, extension,dateIni, dateFin):
                 sources.append(
                     {'path': os.path.join(root, file), 'file': file, 'date': fileTimeStamp})
     try:
-        print('Procesando Archivos')
+        print('Procesando Lote de Archivos')
         '''        waitAppBox = CalendarApp()
         msgbox = waitAppBox.msg_box
-        msgbox.setWindowTitle("Procesando Archivos.  Por Favor espere")
-        msgbox.setText("Procesando Archivos.  Por favor espere")
+        msgbox.setWindowTitle("Procesando Lote de Archivos.")
+        msgbox.setText("El proceso puede llevar varios minutos.  Por Favor sea paciente!")
         #msgbox.setWindowModality(2)
         msgbox.exec_()
         '''
@@ -77,6 +77,6 @@ def writeCSV(csv_location, items):
         msgbox = sucessAppBox.msg_box
         msgbox.setWindowTitle("Proceso Exitoso")
         msgbox.setText("Se ha generado el archivo CSV del movimiento solicitado")
-        msgbox.exec_()
+        #msgbox.exec_()
     except:
         print('Error al llamar msgBox Proceso Finalizado con éxito')

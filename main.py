@@ -4,27 +4,34 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QCalendarWidget, QPushBut
 from PyQt5.QtCore import QDate
 from PyQt5.QtCore import Qt, QThread,  pyqtSignal
 from PyQt5.QtGui import QFont, QColor
+from threading import *
 from datetime import datetime, time, timedelta
 import logging
 import counterPages
 
 
 class CountPDFThread(QThread):
-
-    disable_button = pyqtSignal()
-    call_contarPDF = pyqtSignal()
+    def __init__(self,datetimeIni_label, datetimeEnd_label, route_label):
+        super().__init__()
+        self.datetimeIni_label=datetimeIni_label
+        self.datetimeEnd_label=datetimeEnd_label
+        self.route_label=route_label
+    #disable_button = pyqtSignal()
+    #call_contarPDF = pyqtSignal()
     #enable_button = pyqtSignal()
-    finished = pyqtSignal()
+        finished = pyqtSignal()
     def run(self):
+            cal1App = CalendarApp()
+            cal1App.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label)
+            print("Running countPDF method inside of QThread...")
+            self.finished.emit()
             # Disable the button in the main thread
-            self.disable_button.emit()
+            #self.disable_button.emit()
             import time
             #time.sleep(10)
             # Your code for the countPDF method goes here
-            self.call_contarPDF.emit()
-            print("Running countPDF method inside of QThread...")
+            #self.call_contarPDF.emit()
             # Enable the button in the main thread
-            self.finished.emit()
             #self.enable_button.emit()
 
 class CalendarApp(QMainWindow):
@@ -39,18 +46,21 @@ class CalendarApp(QMainWindow):
         custom_button.setStyleSheet("background-color: #3498db; color: white;")
         self.msg_box.addButton(custom_button, QMessageBox.AcceptRole)
 
+    def thread(self):
+        t1 = Thread(target=self.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label))
+        t1.start()
+
     def startCountPDFThread(self):
         # Create an instance of the CountPDFThread and start it
-        self.countPDF_thread = CountPDFThread()
+        self.countPDF_thread = CountPDFThread(self.datetimeIni_label, self.datetimeEnd_label, self.route_label)
+        self.countPDF_thread.finished.connect(self.onCountPDFFinished)
+        self.countPDF_thread.start()
 
 
         # Connect signals to enable/disable the button
-        self.countPDF_thread.disable_button.connect(lambda: self.generateCsv_button.setDisabled(True))
-        self.countPDF_thread.call_contarPDF.connect(lambda: self.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label))
+        #self.countPDF_thread.disable_button.connect(lambda: self.generateCsv_button.setDisabled(True))
+        #self.countPDF_thread.call_contarPDF.connect()
         #self.countPDF_thread.enable_button.connect(lambda: self.generateCsv_button.setEnabled(True))
-        self.countPDF_thread.finished.connect(self.onCountPDFFinished)
-
-        self.countPDF_thread.start()
 
     def onCountPDFFinished(self):
         print("countPDF method is complete.")
@@ -120,8 +130,8 @@ class CalendarApp(QMainWindow):
         # Create a push button to Generate Report
         self.generateCsv_button = QPushButton("Generar Reporte")
         #self.generateCsv_button.clicked.connect(lambda:self.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label))
+        #self.generateCsv_button.clicked.connect(self.startCountPDFThread)
         self.generateCsv_button.clicked.connect(self.startCountPDFThread)
-
 
         # Add a QLabel to display the selected folder path
         self.Fecha_Inicial_Label = QLabel("Seleccione Fecha Inicial: ")
@@ -213,7 +223,7 @@ class CalendarApp(QMainWindow):
                 showDialog = self.msg_box.exec_()
                 return None
             elif not(distanciaEntreFechas):
-                self.msg_box.setText("No puedes seleccionar un rango mayor a 31 días")
+                self.msg_box.setText("No puedes seleccionar un rango mayor a 16 días")
                 showDialog = self.msg_box.exec_()
                 return None
             else:
@@ -245,7 +255,7 @@ class CalendarApp(QMainWindow):
 
         # Calculate the time difference
         time_difference = date_time2 - date_time1
-        if time_difference.days <=31:
+        if time_difference.days <=16:
             return True
         return False
 

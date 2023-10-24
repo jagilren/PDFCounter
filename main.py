@@ -11,13 +11,15 @@ import counterPages
 
 class CountPDFThread(QThread):
 
-    #disable_button = pyqtSignal()
+    disable_button = pyqtSignal()
     call_contarPDF = pyqtSignal()
     #enable_button = pyqtSignal()
     finished = pyqtSignal()
     def run(self):
             # Disable the button in the main thread
-            #self.disable_button.emit()
+            self.disable_button.emit()
+            import time
+            #time.sleep(10)
             # Your code for the countPDF method goes here
             self.call_contarPDF.emit()
             print("Running countPDF method inside of QThread...")
@@ -43,7 +45,7 @@ class CalendarApp(QMainWindow):
 
 
         # Connect signals to enable/disable the button
-        #self.countPDF_thread.disable_button.connect(lambda: self.generateCsv_button.setDisabled(True))
+        self.countPDF_thread.disable_button.connect(lambda: self.generateCsv_button.setDisabled(True))
         self.countPDF_thread.call_contarPDF.connect(lambda: self.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label))
         #self.countPDF_thread.enable_button.connect(lambda: self.generateCsv_button.setEnabled(True))
         self.countPDF_thread.finished.connect(self.onCountPDFFinished)

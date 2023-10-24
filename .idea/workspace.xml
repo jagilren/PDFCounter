@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="59e4ede3-7410-4a46-afc5-ac895e2f2c93" name="Changes" comment="Unversioned workspace.xml">
+    <list default="true" id="59e4ede3-7410-4a46-afc5-ac895e2f2c93" name="Changes" comment="Enable and Disable Button generateCsv_Button with try function">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/counterPages.py" beforeDir="false" afterPath="$PROJECT_DIR$/counterPages.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -137,7 +138,15 @@
       <option name="project" value="LOCAL" />
       <updated>1698091610505</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Enable and Disable Button generateCsv_Button with try function">
+      <option name="closed" value="true" />
+      <created>1698096354396</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1698096354396</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -193,20 +202,26 @@
     <MESSAGE value="Vuelvo a empezar sin Workers 23/10/2023 (2)" />
     <MESSAGE value="Vuelvo a empezar sin Workers 23/10/2023 (3)" />
     <MESSAGE value="Unversioned workspace.xml" />
-    <option name="LAST_COMMIT_MESSAGE" value="Unversioned workspace.xml" />
+    <MESSAGE value="Enable and Disable Button generateCsv_Button with try function" />
+    <option name="LAST_COMMIT_MESSAGE" value="Enable and Disable Button generateCsv_Button with try function" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/counterPages.py</url>
-          <line>84</line>
+          <line>42</line>
           <option name="timeStamp" value="25" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/main.py</url>
-          <line>21</line>
-          <option name="timeStamp" value="27" />
+          <url>file://$PROJECT_DIR$/counterPages.py</url>
+          <line>35</line>
+          <option name="timeStamp" value="34" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/counterPages.py</url>
+          <line>17</line>
+          <option name="timeStamp" value="35" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

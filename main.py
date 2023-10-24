@@ -10,20 +10,20 @@ import counterPages
 
 
 class CountPDFThread(QThread):
+
+    #disable_button = pyqtSignal()
+    call_contarPDF = pyqtSignal()
+    #enable_button = pyqtSignal()
     finished = pyqtSignal()
-    disable_button = pyqtSignal()
-    enable_button =  pyqtSignal()
     def run(self):
             # Disable the button in the main thread
-            self.disable_button.emit()
+            #self.disable_button.emit()
             # Your code for the countPDF method goes here
-            print("Running countPDF method...")
-            import time
-            time.sleep(5)  # Simulate some work (remove this in your actual code)
-
+            self.call_contarPDF.emit()
+            print("Running countPDF method inside of QThread...")
             # Enable the button in the main thread
-            self.enable_button.emit()
             self.finished.emit()
+            #self.enable_button.emit()
 
 class CalendarApp(QMainWindow):
     def __init__(self):
@@ -40,16 +40,20 @@ class CalendarApp(QMainWindow):
     def startCountPDFThread(self):
         # Create an instance of the CountPDFThread and start it
         self.countPDF_thread = CountPDFThread()
-        self.countPDF_thread.finished.connect(self.onCountPDFFinished)
+
 
         # Connect signals to enable/disable the button
-        self.countPDF_thread.disable_button.connect(lambda: self.generateCsv_button.setDisabled(True))
-        self.countPDF_thread.enable_button.connect(lambda: self.generateCsv_button.setEnabled(True))
+        #self.countPDF_thread.disable_button.connect(lambda: self.generateCsv_button.setDisabled(True))
+        self.countPDF_thread.call_contarPDF.connect(lambda: self.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label))
+        #self.countPDF_thread.enable_button.connect(lambda: self.generateCsv_button.setEnabled(True))
+        self.countPDF_thread.finished.connect(self.onCountPDFFinished)
 
         self.countPDF_thread.start()
 
     def onCountPDFFinished(self):
         print("countPDF method is complete.")
+        self.generateCsv_button.setEnabled(True)
+
 
     def initUI(self):
         self.setWindowTitle("Indicador de Rendimiento CAD")
@@ -187,7 +191,7 @@ class CalendarApp(QMainWindow):
             self.route_label.setText("Path: " + folder_path)
 
     def generateCsv(self, datetime1, datetime2, rutaRaiz):
-        print(datetime1.text())
+        print(f'Entraste a generateCSV:  {datetime1.text()}')
         consistenciaFechas = self.deltaBetweenDateTimes(datetime1.text(),datetime2.text())
         distanciaEntreFechas = self.gapBetweenDates(datetime1.text(),datetime2.text())
         if consistenciaFechas and distanciaEntreFechas:

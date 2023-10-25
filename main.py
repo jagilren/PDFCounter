@@ -41,12 +41,20 @@ class CountPDFThread(QThread):
         #mostrarMensaje = pyqtSignal()
     def run(self):
         global retorno1
-        self.window_instance.label_foot.setText("Procesando2")
-        cal1App = CalendarApp()
+        self.window_instance.label_foot.setText("...")
+        self.blink_timer = QTimer(self)
+        self.blink_timer.timeout.connect(self.toggleText)
+        self.blink_timer.start(1000)
+        self.toggleText()
         print("Running countPDF method inside of QThread...")
-        #cal1App.label_foot.setText("Procesando2")
-        retorno1 = cal1App.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label)
+        retorno1 = self.window_instance.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label)
         self.finished.emit()
+
+    def toggleText(self):
+        if self.window_instance.label_foot.text() == 'Procesando...':
+            self.window_instance.label_foot.setText('...')  # Hide the text
+        else:
+            self.window_instance.label_foot.setText('Procesando...')  # Show the text
 
 class CalendarApp(QMainWindow):
     def __init__(self):

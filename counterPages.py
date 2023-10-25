@@ -26,9 +26,9 @@ def read_pdf(sources):
             app1 = CalendarApp()
             msgbox = app1.msg_box
             msgbox.setText(
-                "En la  ubicación seleccionada no se encontraron  archivos válidos  entre  las fechas específicadas")
-            showDialog = app1.msg_box.exec_()
-            return 0
+                "En la ubicación seleccionada no se encontraron  archivos válidos  entre  las fechas específicadas")
+            #showDialog = app1.msg_box.exec_()
+            return counter_pages, "En la ubicación seleccionada no se encontraron  archivos válidos  entre  las fechas específicadas"
     except:
         print('Error en método read_pdf')
 
@@ -36,7 +36,7 @@ def read_pdf(sources):
         home_folder = os.path.expanduser("~")
         nameFile = f"results--{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.csv"
         writeCSV(os.path.join(home_folder, nameFile), results)
-        return counter_pages
+        return counter_pages, "Archivo CSV, generado exitosamente"
 
 
 
@@ -59,11 +59,16 @@ def search_files_in_directory(root_path, extension,dateIni, dateFin):
         #msgbox.setWindowModality(2)
         msgbox.exec_()
         '''
+
     except:
         print('Error al llamar msgBox Procesando Archivos')
-
+        return 'Error al llamar msgBox Procesando Archivos'
     logger.info('Before StarWorker')
-    numeroPaginas= read_pdf(sources)
+    numeroPaginas, mensaje1= read_pdf(sources)
+    if numeroPaginas == 0:
+        return "En la ubicación seleccionada no se encontraron  archivos válidos  entre  las fechas específicadas"
+    else:
+        return "Archivo CSV Generado exitoasamente"
 
 
 

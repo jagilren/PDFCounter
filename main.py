@@ -1,7 +1,7 @@
 #Workers with Error at F10
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QCalendarWidget, QPushButton, QVBoxLayout, QWidget, QFrame, QFileDialog, QLabel, QHBoxLayout,QMessageBox
-from PyQt5.QtCore import QDate
+from PyQt5.QtCore import QDate, pyqtSlot
 from PyQt5.QtCore import Qt, QThread,  pyqtSignal
 from PyQt5.QtGui import QFont, QColor
 from threading import *
@@ -9,30 +9,41 @@ from datetime import datetime, time, timedelta
 import logging
 import counterPages
 
+pasos = 0
+retorno1=""
+class MyMessageBox(QMessageBox):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Custom MessageBox")
+        self.setText("This is a custom QMessageBox.")
+        #self.setStandardButtons(QMessageBox.Ok)
+        self.setWindowTitle("Error en selección de datos")
+        self.setIcon(QMessageBox.Information)
+        custom_button = QPushButton("OK")
+        custom_button.setStyleSheet("background-color: #3498db; color: white;")
+        self.addButton(custom_button, QMessageBox.AcceptRole)
+
 
 class CountPDFThread(QThread):
     def __init__(self,datetimeIni_label, datetimeEnd_label, route_label):
         super().__init__()
+        self.is_running = False
+        self.lock = Lock()
         self.datetimeIni_label=datetimeIni_label
         self.datetimeEnd_label=datetimeEnd_label
         self.route_label=route_label
-    #disable_button = pyqtSignal()
-    #call_contarPDF = pyqtSignal()
-    #enable_button = pyqtSignal()
+        global retorno1
+        #disable_button = pyqtSignal()
+        #call_contarPDF = pyqtSignal()
+        #enable_button = pyqtSignal()
         finished = pyqtSignal()
+        #mostrarMensaje = pyqtSignal()
     def run(self):
-            cal1App = CalendarApp()
-            cal1App.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label)
-            print("Running countPDF method inside of QThread...")
-            self.finished.emit()
-            # Disable the button in the main thread
-            #self.disable_button.emit()
-            import time
-            #time.sleep(10)
-            # Your code for the countPDF method goes here
-            #self.call_contarPDF.emit()
-            # Enable the button in the main thread
-            #self.enable_button.emit()
+        global retorno1
+        cal1App = CalendarApp()
+        print("Running countPDF method inside of QThread...")
+        retorno1 = cal1App.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label)
+        self.finished.emit()
 
 class CalendarApp(QMainWindow):
     def __init__(self):
@@ -52,24 +63,40 @@ class CalendarApp(QMainWindow):
 
     def startCountPDFThread(self):
         # Create an instance of the CountPDFThread and start it
+        self.generateCsv_button.setEnabled(False)
+        self.folder_button.setEnabled(False)
         self.countPDF_thread = CountPDFThread(self.datetimeIni_label, self.datetimeEnd_label, self.route_label)
         self.countPDF_thread.finished.connect(self.onCountPDFFinished)
+        #self.countPDF_thread.mostrarMensaje.connect(self.OnmostrarMensaje)
         self.countPDF_thread.start()
 
 
         # Connect signals to enable/disable the button
         #self.countPDF_thread.disable_button.connect(lambda: self.generateCsv_button.setDisabled(True))
         #self.countPDF_thread.call_contarPDF.connect()
-        #self.countPDF_thread.enable_button.connect(lambda: self.generateCsv_button.setEnabled(True))
+
 
     def onCountPDFFinished(self):
-        print("countPDF method is complete.")
-        self.generateCsv_button.setEnabled(True)
+        global pasos
+        if pasos == 0:
+            print("countPDF method is complete.")
+            self.generateCsv_button.setEnabled(True)
+            self.folder_button.setEnabled(True)
+            global retorno1
+            vbaMessageBox = MyMessageBox()
+            vbaMessageBox.setText(retorno1)
+            vbaMessageBox.exec_()
+            pasos = 1 if pasos == 0 else 0
+
+    def OnmostrarMensaje(self):
+        global retorno1
+        print(retorno1)
+
 
 
     def initUI(self):
         self.setWindowTitle("Indicador de Rendimiento CAD")
-        self.setGeometry(100, 100, 500, 300)
+        self.setGeometry(500, 500, 500, 300)
 
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
@@ -125,8 +152,8 @@ class CalendarApp(QMainWindow):
         font.setItalic(True)  # Set font style to italic
 
         # Create a push button to select a folder
-        folder_button = QPushButton("Select Folder")
-        folder_button.clicked.connect(self.select_folder)
+        self.folder_button = QPushButton("Select Folder")
+        self.folder_button.clicked.connect(self.select_folder)
         # Create a push button to Generate Report
         self.generateCsv_button = QPushButton("Generar Reporte")
         #self.generateCsv_button.clicked.connect(lambda:self.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label))
@@ -167,7 +194,7 @@ class CalendarApp(QMainWindow):
         frame2.setLayout(frame2_layout)
 
         frame_path_layout = QVBoxLayout()
-        frame_path_layout.addWidget(folder_button)
+        frame_path_layout.addWidget(self.folder_button)
         frame_path_layout.addWidget(self.route_label)
         frame_path_layout.setAlignment(Qt.AlignLeft | Qt.AlignTop | Qt.AlignVCenter ) #Align of Widget inside Frame
         frame_path.setLayout(frame_path_layout)
@@ -209,27 +236,40 @@ class CalendarApp(QMainWindow):
         if consistenciaFechas and distanciaEntreFechas:
             try:
                 if rutaRaiz.text().split("Path: ")[1][0].upper():
-                    self.generateCsv_button.setEnabled(False)
-                    counterPages.search_files_in_directory(rutaRaiz.text().split("Path: ")[1],'PDF',datetime1.text(),datetime2.text())
+                    #self.generateCsv_button.setEnabled(False)
+                    retorno2= counterPages.search_files_in_directory(rutaRaiz.text().split("Path: ")[1],'PDF',datetime1.text(),datetime2.text())
+                    return retorno2
             except Exception as error:
                 error_description = str(error)
-                self.msg_box.setText(
-                    "Debes Seleccionar una carpeta váida, donde se encuentren los Archivos PDF de imagenes")
-                showDialog = self.msg_box.exec_()
-                return None
+                msg_box = MyMessageBox()
+                #msg_box.exec_()
+                ''''self.msg_box.setText(
+                    "Debes Seleccionar una carpeta válida, donde se encuentren los Archivos PDF de imagenes")
+                showDialog = self.msg_box.exec_()'''''
+                print("Debes Seleccionar una carpeta válida, donde se encuentren los Archivos PDF de imagenes")
+                return "Debes Seleccionar una carpeta válida, donde se encuentren los Archivos PDF de imagenes"
         else:
             if not(consistenciaFechas):
-                self.msg_box.setText("Fecha final debe ser mayor o igual a Fecha inicial")
-                showDialog = self.msg_box.exec_()
-                return None
+                msg_box = MyMessageBox()
+                #msg_box.exec_()
+                ''''self.msg_box.setText("Fecha final debe ser mayor o igual a Fecha inicial")
+                showDialog = self.msg_box.exec_()'''''
+                print("Fecha final debe ser mayor o igual a Fecha inicial")
+                return "Fecha final debe ser mayor o igual a Fecha inicial"
             elif not(distanciaEntreFechas):
-                self.msg_box.setText("No puedes seleccionar un rango mayor a 16 días")
-                showDialog = self.msg_box.exec_()
-                return None
+                msg_box = MyMessageBox()
+                #msg_box.exec_()
+                '''self.msg_box.setText("No puedes seleccionar un rango mayor a 16 días")
+                showDialog = self.msg_box.exec_()'''
+                print("No puedes seleccionar un rango mayor a 16 días")
+                return "No puedes seleccionar un rango mayor a 16 días"
             else:
-                self.msg_box.setText("Error no determinado.  Comuníque al administrador del sistema")
-                showDialog = self.msg_box.exec_()
-                return None
+                msg_box = MyMessageBox()
+                #msg_box.exec_()
+                '''self.msg_box.setText("Error no determinado.  Comuníque al administrador del sistema")
+                showDialog = self.msg_box.exec_()'''
+                print("Error no determinado.  Comuníque al administrador del sistema")
+                return "Error no determinado.  Comuníque al administrador del sistema"
 
     def deltaBetweenDateTimes(self,date_string1,date_string2):
         # Convert the datetime strings to datetime objects
@@ -258,6 +298,7 @@ class CalendarApp(QMainWindow):
         if time_difference.days <=16:
             return True
         return False
+
 
         # Extract components of the time difference
         days = time_difference.days

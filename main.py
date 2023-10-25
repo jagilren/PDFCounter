@@ -25,13 +25,14 @@ class MyMessageBox(QMessageBox):
 
 
 class CountPDFThread(QThread):
-    def __init__(self,datetimeIni_label, datetimeEnd_label, route_label):
+    def __init__(self,datetimeIni_label, datetimeEnd_label, route_label, window_instance):
         super().__init__()
         self.is_running = False
         self.lock = Lock()
         self.datetimeIni_label=datetimeIni_label
         self.datetimeEnd_label=datetimeEnd_label
         self.route_label=route_label
+        self.window_instance = window_instance
         global retorno1
         #disable_button = pyqtSignal()
         #call_contarPDF = pyqtSignal()
@@ -40,9 +41,10 @@ class CountPDFThread(QThread):
         #mostrarMensaje = pyqtSignal()
     def run(self):
         global retorno1
+        self.window_instance.label_foot.setText("Procesando2")
         cal1App = CalendarApp()
         print("Running countPDF method inside of QThread...")
-        cal1App.label_foot.setText("Procesando2")
+        #cal1App.label_foot.setText("Procesando2")
         retorno1 = cal1App.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label)
         self.finished.emit()
 
@@ -66,7 +68,7 @@ class CalendarApp(QMainWindow):
         # Create an instance of the CountPDFThread and start it
         self.generateCsv_button.setEnabled(False)
         self.folder_button.setEnabled(False)
-        self.countPDF_thread = CountPDFThread(self.datetimeIni_label, self.datetimeEnd_label, self.route_label)
+        self.countPDF_thread = CountPDFThread(self.datetimeIni_label, self.datetimeEnd_label, self.route_label,self)
         self.countPDF_thread.finished.connect(self.onCountPDFFinished)
         #self.countPDF_thread.mostrarMensaje.connect(self.OnmostrarMensaje)
         self.countPDF_thread.start()
@@ -294,7 +296,7 @@ class CalendarApp(QMainWindow):
         seconds = time_difference.seconds
         hours, remainder = divmod(seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
-¶
+
     def gapBetweenDates(self,date_string1,date_string2):
         # Convert the datetime strings to datetime objects
         date_time1 = datetime.strptime(date_string1, "%Y-%m-%d %H:%M:%S")

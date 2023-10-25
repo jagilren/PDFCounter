@@ -294,7 +294,7 @@ class CalendarApp(QMainWindow):
         seconds = time_difference.seconds
         hours, remainder = divmod(seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
-
+¶
     def gapBetweenDates(self,date_string1,date_string2):
         # Convert the datetime strings to datetime objects
         date_time1 = datetime.strptime(date_string1, "%Y-%m-%d %H:%M:%S")

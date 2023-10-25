@@ -2,7 +2,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QCalendarWidget, QPushButton, QVBoxLayout, QWidget, QFrame, QFileDialog, QLabel, QHBoxLayout,QMessageBox
 from PyQt5.QtCore import QDate, pyqtSlot
-from PyQt5.QtCore import Qt, QThread,  pyqtSignal
+from PyQt5.QtCore import Qt, QThread,  pyqtSignal, QTimer
 from PyQt5.QtGui import QFont, QColor
 from threading import *
 from datetime import datetime, time, timedelta
@@ -42,6 +42,7 @@ class CountPDFThread(QThread):
         global retorno1
         cal1App = CalendarApp()
         print("Running countPDF method inside of QThread...")
+        cal1App.label_foot.setText("Procesando2")
         retorno1 = cal1App.generateCsv(self.datetimeIni_label,self.datetimeEnd_label, self.route_label)
         self.finished.emit()
 
@@ -70,22 +71,19 @@ class CalendarApp(QMainWindow):
         #self.countPDF_thread.mostrarMensaje.connect(self.OnmostrarMensaje)
         self.countPDF_thread.start()
 
-
-        # Connect signals to enable/disable the button
-        #self.countPDF_thread.disable_button.connect(lambda: self.generateCsv_button.setDisabled(True))
-        #self.countPDF_thread.call_contarPDF.connect()
-
-
     def onCountPDFFinished(self):
         global pasos
         if pasos == 0:
+            pasos = 1 if pasos == 0 else 0
             print("countPDF method is complete.")
             self.generateCsv_button.setEnabled(True)
             self.folder_button.setEnabled(True)
+            self.label_foot.setText("...")
             global retorno1
-            vbaMessageBox = MyMessageBox()
-            vbaMessageBox.setText(retorno1)
-            vbaMessageBox.exec_()
+            self.vbaMessageBox = MyMessageBox()
+            self.vbaMessageBox.setText(retorno1)
+            self.vbaMessageBox.exec_()
+        else:
             pasos = 1 if pasos == 0 else 0
 
     def OnmostrarMensaje(self):
@@ -114,7 +112,7 @@ class CalendarApp(QMainWindow):
         frame_path = QFrame()
         frame_csv = QFrame()
         frame_foot = QFrame()
-        self.label_foot = QLabel("Procesando...")
+        self.label_foot = QLabel("...")
 
 
         # Set frame borders

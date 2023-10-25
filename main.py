@@ -113,6 +113,8 @@ class CalendarApp(QMainWindow):
         frame2.setLineWidth(3)
         frame_path = QFrame()
         frame_csv = QFrame()
+        frame_foot = QFrame()
+        self.label_foot = QLabel("Procesando...")
 
 
         # Set frame borders
@@ -205,6 +207,12 @@ class CalendarApp(QMainWindow):
         frame_csv_layout.setAlignment(Qt.AlignLeft | Qt.AlignTop | Qt.AlignVCenter) #Align of Widget inside Frame
         frame_csv.setLayout(frame_csv_layout)
 
+        # Frame para mostrar estado del Proceso
+        frame_foot_layout = QVBoxLayout()
+        frame_foot_layout.addWidget(self.label_foot)
+        frame_foot_layout.setAlignment(Qt.AlignLeft | Qt.AlignTop | Qt.AlignVCenter)  # Align of Widget inside Frame
+        frame_foot.setLayout(frame_foot_layout)
+
         frame_calendars_layout = QHBoxLayout()
         frame_calendars_layout.addWidget(frame1)
         frame_calendars_layout.addWidget(frame2)
@@ -219,6 +227,7 @@ class CalendarApp(QMainWindow):
 
         frame_root.addWidget(frame_calendars)
         frame_root.addWidget(frame_operations)
+        frame_root.addWidget(frame_foot)
         frame_root.setAlignment(Qt.AlignHCenter | Qt.AlignTop | Qt.AlignVCenter)
         central_widget.setLayout(frame_root)
 
